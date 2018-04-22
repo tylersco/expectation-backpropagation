@@ -1,5 +1,5 @@
 '''
-Expectation Backpropagation
+Expectation Backpropagation with binary weights
 
 Adapted from:
 https://github.com/ExpectationBackpropagation/EBP_Matlab_Code/blob/master/RunMe.m
@@ -8,9 +8,9 @@ https://github.com/ExpectationBackpropagation/EBP_Matlab_Code/blob/master/RunMe.
 import numpy as np
 from scipy.stats import norm
 
-class ExpectationBackpropagationNetwork:
+class ExpectationBackpropagationNetworkBinary:
 
-    def __init__(self, data, network_size, epochs=10, batch_size=10, sigma_w=1.):
+    def __init__(self, data, network_size, epochs=20, batch_size=10, sigma_w=1.):
         
         self.epochs = epochs
         self.sigma_w = sigma_w
@@ -88,8 +88,12 @@ class ExpectationBackpropagationNetwork:
             v = np.matmul(np.sign(h), v) + bias
             deterministic_pred[i:i + batch_size, :] = np.transpose(v)
 
-        print('Probabilistic Accuracy: {0}'.format(self.compute_accuracy(y, prob_pred)))
-        print('Deterministic Accuracy: {0}\n'.format(self.compute_accuracy(y, deterministic_pred)))
+        prob_accuracy = self.compute_accuracy(y, prob_pred)
+        print('Probabilistic Accuracy: {0}'.format(prob_accuracy))
+        determ_accuracy = self.compute_accuracy(y, deterministic_pred)
+        print('Deterministic Accuracy: {0}\n'.format(determ_accuracy))
+
+        return prob_accuracy, determ_accuracy
 
     def compute_accuracy(self, labels, predictions):
 
@@ -112,8 +116,7 @@ class ExpectationBackpropagationNetwork:
             shuffle = np.random.permutation(len(y_train))
             x_train, y_train = x_train[shuffle], y_train[shuffle]
 
-            self.forward_pass(x_train, y_train)
-            #self.forward_pass(self.valid_data['x'], self.valid_data['y'])
+            prob_acc, determ_acc = self.forward_pass(self.valid_data['x'], self.valid_data['y'])
 
             for i in range(0, len(y_train), self.batch_size):
 
@@ -182,3 +185,5 @@ class ExpectationBackpropagationNetwork:
                     self.weights[l] = h
                     self.tanh_weights[l] = np.tanh(h)
                     self.biases[l] = bias + 0.5 * np.expand_dims(np.sum(delta_next * grad, 1), axis=1)
+            
+        return self.forward_pass(self.test_data['x'], self.test_data['y'])

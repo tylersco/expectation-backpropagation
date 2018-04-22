@@ -8,8 +8,9 @@ from sklearn.model_selection import train_test_split
 
 class MNIST():
 
-    def __init__(self, path, random_seed):
+    def __init__(self, path, random_seed, prob=True):
         self.path = path
+        self.prob = prob
 
         self.test_img_fname = 't10k-images-idx3-ubyte'
         self.test_lbl_fname = 't10k-labels-idx1-ubyte'
@@ -27,8 +28,8 @@ class MNIST():
 
         self.random_seed = random_seed
 
-        np.random.seed(42)
-        random.seed(42)
+        np.random.seed(self.random_seed)
+        random.seed(self.random_seed)
 
     def load_testing(self):
         ims, labels = self.load(os.path.join(self.path, self.test_img_fname),
@@ -54,7 +55,8 @@ class MNIST():
 
     def process_labels(self, labels):
         one_hot_labels = np.eye(self.num_classes, dtype=float)[labels]
-        one_hot_labels[one_hot_labels == 0] = -1
+        if self.prob:
+            one_hot_labels[one_hot_labels == 0] = -1
         return np.array(one_hot_labels)
 
     @classmethod
