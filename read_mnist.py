@@ -99,6 +99,7 @@ class MNIST():
         self.images_full = np.concatenate((self.train_images, self.test_images), axis=0)
         self.labels_full = np.concatenate((self.train_labels, self.test_labels), axis=0)
 
+        self.images_full, _, self.labels_full, _ = train_test_split(self.images_full, self.labels_full, test_size=.8, random_state=self.random_seed)
         x_train, x_test, y_train, y_test = train_test_split(self.images_full, self.labels_full, test_size=test_percent, random_state=self.random_seed)
         x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=valid_percent / (valid_percent + train_percent), random_state=self.random_seed)
 
